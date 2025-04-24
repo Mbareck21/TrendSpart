@@ -1,0 +1,91 @@
+/* Glass Morphism Styles for TrendSpark */
+
+/* Glass Morphism Theme Variables */
+:root {
+	/* Glass Morphism Variables */
+	--glass-blur-sm: 4px;
+	--glass-blur-md: 8px;
+	--glass-blur-lg: 12px;
+	--glass-blur-xl: 16px;
+	--glass-blur-2xl: 24px;
+
+	--glass-bg-opacity: 0.2;
+	--glass-border-opacity: 0.3;
+
+	--glass-bg-color: 255, 255, 255;
+	--glass-border-color: 255, 255, 255;
+	--glass-shadow-color: 0, 0, 0;
+	--glass-accent-color: 59, 130, 246;
+
+	/* Transitions */
+	--transition-fast: 0.2s;
+	--transition-medium: 0.3s;
+	--transition-slow: 0.5s;
+}
+
+.dark {
+	/* Glass Morphism Variables - Dark Mode */
+	--glass-bg-opacity: 0.15;
+	--glass-border-opacity: 0.2;
+
+	--glass-bg-color: 15, 23, 42;
+	--glass-border-color: 255, 255, 255;
+	--glass-shadow-color: 0, 0, 0;
+	--glass-accent-color: 59, 130, 246;
+}
+
+/* Background patterns for glass morphism */
+.glass-pattern-dots {
+	background-image: radial-gradient(
+		rgba(var(--glass-accent-color), 0.1) 1px,
+		transparent 1px
+	);
+	background-size: 20px 20px;
+}
+
+.glass-pattern-grid {
+	background-image: linear-gradient(
+			rgba(var(--glass-accent-color), 0.05) 1px,
+			transparent 1px
+		),
+		linear-gradient(
+			to right,
+			rgba(var(--glass-accent-color), 0.05) 1px,
+			transparent 1px
+		);
+	background-size: 20px 20px;
+}
+
+/* Animated background gradients */
+.glass-animated-bg {
+	background: linear-gradient(
+		45deg,
+		rgba(var(--glass-accent-color), 0.05),
+		rgba(var(--glass-border-color), 0.05),
+		rgba(var(--glass-accent-color), 0.05)
+	);
+	background-size: 200% 200%;
+	animation: glass-gradient 15s ease infinite;
+}
+
+@keyframes glass-gradient {
+	0% {
+		background-position: 0% 50%;
+	}
+	50% {
+		background-position: 100% 50%;
+	}
+	100% {
+		background-position: 0% 50%;
+	}
+}
+
+/* Accessibility focus styles for glass components */
+.glass-focus-ring {
+	outline: none;
+}
+
+.glass-focus-ring:focus-visible {
+	outline: 2px solid rgba(var(--glass-accent-color), 0.8);
+	outline-offset: 2px;
+}

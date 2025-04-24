@@ -1,36 +1,86 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# TrendFinderAgent
 
-## Getting Started
+An intelligent trend analysis application that discovers and analyzes trending topics, generates content ideas, and creates scripts with audio output.
 
-First, run the development server:
+## Project Structure
 
+- **Backend**: AI-powered services for trend analysis and content generation
+- **TrendAppGUI**: Electron-based graphical user interface
+
+## Features
+
+- Trend discovery and analysis
+- Content idea generation
+- Script writing automation
+- Audio generation from scripts
+- User-friendly Electron interface
+
+## Installation
+
+### Prerequisites
+
+- Node.js (v14+)
+- npm or yarn
+
+### Setup
+
+1. Clone the repository
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+git clone https://github.com/yourusername/TrendFinderAgent.git
+cd TrendFinderAgent
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+2. Install dependencies for the backend
+```bash
+cd backend
+npm install
+```
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+3. Install dependencies for the frontend
+```bash
+cd ../TrendAppGUI
+npm install
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+4. Create a `.env` file in the TrendAppGUI directory (see `.env.example` for required variables)
 
-## Learn More
+## Usage
 
-To learn more about Next.js, take a look at the following resources:
+### Backend Services
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+The backend provides several services:
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+- `findTrends.js`: Discovers current trending topics
+- `generateIdeas.js`: Creates content ideas based on trends
+- `writeScript.js`: Generates scripts from content ideas
+- `generateAudio.js`: Converts scripts to audio
+- `extractContent.js`: Extracts relevant content from articles
 
-## Deploy on Vercel
+### Frontend Application
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+Start the Electron application:
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+```bash
+cd TrendAppGUI
+npm start
+```
+
+## Model Context Protocol (MCP) Integration
+
+This application includes MCP server integration for enhanced AI model context management. The MCP server facilitates efficient communication between the application and AI models.
+
+## API Keys Required
+
+- NEWS API Key (for trend discovery)
+- GROQ API Key (for AI text generation)
+- OpenAI API Key (for advanced AI features)
+
+See `.env.example` for configuration.
+
+## Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request.
+
+## License
+
+This project is licensed under the MIT License - see the LICENSE file for details.
