@@ -1,86 +1,137 @@
-# TrendFinderAgent
+# ✨ TrendSpark
 
-An intelligent trend analysis application that discovers and analyzes trending topics, generates content ideas, and creates scripts with audio output.
+![TrendSpark Banner](https://img.shields.io/badge/TrendSpark-Next.js%2015.3.1-blue?style=for-the-badge&logo=next.js)
 
-## Project Structure
+> The ultimate AI-powered content pipeline with a beautiful glassmorphic UI
 
-- **Backend**: AI-powered services for trend analysis and content generation
-- **TrendAppGUI**: Electron-based graphical user interface
+🔗 **[Live Demo: https://trendspark.vercel.app/](https://trendspark.vercel.app/)**
 
-## Features
+TrendSpark is a cutting-edge web application that leverages the power of multiple AI models to help content creators discover trending topics, generate innovative content ideas, craft compelling scripts, and produce professional audio — all within a sleek, modern glassmorphic interface.
 
-- Trend discovery and analysis
-- Content idea generation
-- Script writing automation
-- Audio generation from scripts
-- User-friendly Electron interface
+<div align="center">
+  <img src="./public/trendspark-screenshot.jpeg" alt="TrendSpark UI Screenshot" width="800" />
+  <p><em>TrendSpark interface showing the AI content generation workflow</em></p>
+</div>
 
-## Installation
+## 🚀 Features
+
+### 🔍 Multi-Agent AI Content Pipeline
+
+TrendSpark features a seamless, AI-driven content generation workflow:
+
+1. **Trend Discovery Agent** - Find trending content across multiple categories and regions
+2. **Content Extraction Agent** - Extract and analyze articles from any URL
+3. **Idea Generation Agent** - Transform trending topics into creative content ideas
+4. **Script Creation Agent** - Develop polished scripts with customizable tones and durations
+5. **Audio Synthesis Agent** - Convert scripts into natural-sounding speech with multiple voice options
+
+### 💎 Modern Glassmorphic UI
+
+- Custom-built, reusable glass-effect components (GlassButton, GlassCard, GlassForm, etc.)
+- Beautiful animated background gradients
+- Smooth micro-interactions and transitions powered by Framer Motion
+- Light/Dark theme support
+- Responsive design for all devices
+
+### 🧠 Advanced AI Integration
+
+- **News API** integration for real-time trend discovery
+- **GROQ** high-performance AI for content and script generation
+- **OpenAI** voice synthesis for professional-quality audio output
+- **Extractus** article extraction for in-depth content analysis
+
+## 🛠️ Tech Stack
+
+- **Frontend**: Next.js 15.3.1 with React 19, TypeScript, TailwindCSS 4
+- **Styling**: Custom glassmorphism components, Framer Motion animations
+- **AI Models**: GROQ, OpenAI
+- **API Handling**: Axios, SWR
+- **Form Handling**: React Hook Form
+
+## 📊 TrendSpark in Action
+
+TrendSpark enables you to:
+
+- **Discover Trends** by searching for keywords or browsing categories like technology, business, entertainment, health, science, and sports
+- **Customize Searches** by selecting from 8 different countries (US, UK, Canada, Australia, Germany, France, Japan, Korea)
+- **Generate Ideas** with AI that understands context and current trends
+- **Craft Scripts** with 6 different tones: informative, excited, neutral, humorous, serious, casual
+- **Create Audio** with 6 high-quality AI voices: alloy, echo, fable, onyx, nova, shimmer
+
+## 🚀 Installation
 
 ### Prerequisites
 
-- Node.js (v14+)
+- Node.js (v18+)
 - npm or yarn
 
-### Setup
+### Environment Setup
 
-1. Clone the repository
-```bash
-git clone https://github.com/yourusername/TrendFinderAgent.git
-cd TrendFinderAgent
+Create a `.env.local` file with the following required API keys:
+
+```
+NEWS_API_KEY=your_news_api_key
+GROQ_API_KEY=your_groq_api_key
+OPENAI_API_KEY=your_openai_api_key
 ```
 
-2. Install dependencies for the backend
+### Quick Start
+
 ```bash
-cd backend
+# Clone the repository
+git clone https://github.com/yourusername/trendspark.git
+
+# Navigate to the project folder
+cd trendspark
+
+# Install dependencies
 npm install
+# or
+yarn install
+
+# Run development server
+npm run dev
+# or
+yarn dev
 ```
 
-3. Install dependencies for the frontend
-```bash
-cd ../TrendAppGUI
-npm install
-```
+Open [http://localhost:3000](http://localhost:3000) to see the application in action.
 
-4. Create a `.env` file in the TrendAppGUI directory (see `.env.example` for required variables)
+## 🔄 Workflow Example
 
-## Usage
+1. **Enter a keyword** or select a category to discover trending content
+2. **Select an article** to extract its content for analysis
+3. **Generate creative ideas** based on the extracted content
+4. **Craft a script** with your preferred tone and duration
+5. **Create audio** with your chosen AI voice
+6. **Download and share** your content!
 
-### Backend Services
+## 🌐 API Structure
 
-The backend provides several services:
+TrendSpark features 5 integrated API routes:
 
-- `findTrends.js`: Discovers current trending topics
-- `generateIdeas.js`: Creates content ideas based on trends
-- `writeScript.js`: Generates scripts from content ideas
-- `generateAudio.js`: Converts scripts to audio
-- `extractContent.js`: Extracts relevant content from articles
+- `/api/trends` - Fetches trending articles based on keywords, category, and country
+- `/api/extract` - Extracts and processes article content from URLs
+- `/api/ideas` - Generates content ideas from extracted text
+- `/api/script` - Creates scripts with specified tone and duration
+- `/api/audio` - Converts scripts into downloadable audio files
 
-### Frontend Application
+## 🧩 Glassmorphic Component System
 
-Start the Electron application:
+TrendSpark includes a custom-built glassmorphic UI component library in the `components/glass` directory:
 
-```bash
-cd TrendAppGUI
-npm start
-```
+- GlassButton - Animated, translucent buttons with hover effects
+- GlassCard - Content containers with frosted glass effect
+- GlassForm - Input elements with glassmorphic styling
+- GlassModal - Overlay dialogs with backdrop blur
+- GlassNavigation - Navigation elements with transparent effects
+- GlassSpinner - Loading indicator with glass styling
 
-## Model Context Protocol (MCP) Integration
+## 🚢 Deployment
 
-This application includes MCP server integration for enhanced AI model context management. The MCP server facilitates efficient communication between the application and AI models.
+TrendSpark is deployed on Vercel's platform for optimal performance and reliability:
 
-## API Keys Required
-
-- NEWS API Key (for trend discovery)
-- GROQ API Key (for AI text generation)
-- OpenAI API Key (for advanced AI features)
-
-See `.env.example` for configuration.
-
-## Contributing
-
-Contributions are welcome! Please feel free to submit a Pull Request.
-
-## License
-
-This project is licensed under the MIT License - see the LICENSE file for details.
+- **Live Application**: [https://trendspark.vercel.app/](https://trendspark.vercel.app/)
+- **Infrastructure**: Vercel's Edge Network
+- **CI/CD**: Automatic deployment from the main branch
+- **Environment Variables**: API keys securely managed through Vercel's environment configuration

@@ -92,10 +92,6 @@ const ttsVoices: TtsVoice[] = [
 
 // --- Main Page Component ---
 export default function Home() {
-	const { theme } = useGlassMorphism();
-
-	// --- State Variables ---
-
 	// UI Controls State
 	const [keywords, setKeywords] = useState<string>("");
 	const [selectedCategory, setSelectedCategory] =
