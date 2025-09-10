@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { motion } from "framer-motion";
+import { motion, MotionStyle } from "framer-motion";
 import { useGlassMorphism, GlassComponentProps } from "./GlassMorphismContext";
 
 // Base input props
@@ -22,6 +22,7 @@ export interface GlassInputProps extends BaseInputProps {
 	onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
 	min?: number;
 	max?: number;
+	step?: number;
 }
 
 // Select input props
@@ -80,7 +81,7 @@ export function GlassInput({
 		: customBorder || theme.colorPalette.border;
 
 	// Input styles
-	const inputStyles = {
+	const inputStyles: MotionStyle = {
 		backgroundColor: theme.isDarkMode
 			? `rgba(30, 41, 59, ${opacityValue})`
 			: `rgba(255, 255, 255, ${opacityValue})`,
@@ -165,7 +166,7 @@ export function GlassSelect({
 		? "rgba(239, 68, 68, 0.5)"
 		: customBorder || theme.colorPalette.border;
 	// Select styles
-	const selectStyles = {
+	const selectStyles: MotionStyle = {
 		backgroundColor: theme.isDarkMode
 			? `rgba(30, 41, 59, ${opacityValue + 0.15})`
 			: `rgba(255, 255, 255, ${opacityValue + 0.15})`,
@@ -204,7 +205,7 @@ export function GlassSelect({
 				disabled={disabled}
 				required={required}
 				className='w-full rounded-md py-2 px-3 outline-none focus:ring-2 transition-all'
-				style={selectStyles}
+				style={selectStyles} 
 				initial={animation ? { opacity: 0, y: 10 } : undefined}
 				animate={animation ? { opacity: 1, y: 0 } : undefined}
 				transition={{ duration: 0.2 }}>

@@ -89,6 +89,8 @@ export function GlassMorphismProvider({ children }: { children: ReactNode }) {
 	}, []);
 
 	// Save theme changes to localStorage
+	// We only need 'theme' in deps since it includes isDarkMode
+	// eslint-disable-next-line react-hooks/exhaustive-deps
 	useEffect(() => {
 		localStorage.setItem("glassmorphismTheme", JSON.stringify(theme));
 		document.documentElement.classList.toggle("dark", theme.isDarkMode);

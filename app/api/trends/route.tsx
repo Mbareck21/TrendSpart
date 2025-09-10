@@ -91,7 +91,17 @@ export async function GET(
 			console.log(
 				`API Route: NewsAPI status OK. Articles count: ${articles.length}`,
 			);
-			const processedArticles: Article[] = articles.map((article: any) => ({
+			interface NewsAPIArticle {
+				title?: string;
+				description?: string;
+				url?: string;
+				source?: { name?: string };
+				publishedAt?: string;
+				author?: string;
+				urlToImage?: string;
+			}
+
+			const processedArticles: Article[] = articles.map((article: NewsAPIArticle) => ({
 				title: article.title || null,
 				description: article.description || null,
 				url: article.url || null,

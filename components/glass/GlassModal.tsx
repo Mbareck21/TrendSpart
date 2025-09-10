@@ -26,7 +26,6 @@ export function GlassModal({
 	customBlur,
 	customOpacity,
 	customBorder,
-	animation = true,
 	className = "",
 	maxWidth = "md",
 	closeOnOutsideClick = true,

@@ -43,7 +43,7 @@ return NextResponse.json(
 let requestBody: AudioRequestBody;
 try {
 requestBody = await request.json();
-} catch (error) {
+} catch {
 console.error("API Route Error: Invalid JSON body in /api/audio");
 return NextResponse.json(
 {
@@ -71,7 +71,7 @@ const modelOption = ttsOptions.model || "tts-1";
 // const speedOption = ttsOptions.speed || 1.0;
 
 // Validate voice option
-const voice = validVoices.includes(voiceOption as any) ? voiceOption : "nova";
+    const voice = voiceOption && validVoices.includes(voiceOption as ValidVoice) ? (voiceOption as ValidVoice) : "nova";
 
 try {
 console.log(`API Route: Generating audio with voice: ${voice}, model: ${modelOption}`);
