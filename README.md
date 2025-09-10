@@ -4,8 +4,6 @@
 
 > The ultimate AI-powered content pipeline with a beautiful glassmorphic UI
 
-🔗 **[Live Demo: https://trendspark.vercel.app/](https://trendspark.vercel.app/)**
-
 TrendSpark is a cutting-edge web application that leverages the power of multiple AI models to help content creators discover trending topics, generate innovative content ideas, craft compelling scripts, and produce professional audio — all within a sleek, modern glassmorphic interface.
 
 <div align="center">
@@ -126,12 +124,3 @@ TrendSpark includes a custom-built glassmorphic UI component library in the `com
 - GlassModal - Overlay dialogs with backdrop blur
 - GlassNavigation - Navigation elements with transparent effects
 - GlassSpinner - Loading indicator with glass styling
-
-## 🚢 Deployment
-
-TrendSpark is deployed on Vercel's platform for optimal performance and reliability:
-
-- **Live Application**: [https://trendspark.vercel.app/](https://trendspark.vercel.app/)
-- **Infrastructure**: Vercel's Edge Network
-- **CI/CD**: Automatic deployment from the main branch
-- **Environment Variables**: API keys securely managed through Vercel's environment configuration

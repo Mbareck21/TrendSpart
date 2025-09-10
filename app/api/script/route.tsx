@@ -132,7 +132,7 @@ ${processedIdeas}
 		console.log("API Route: Sending request to Groq API to write script...");
 		const chatCompletion = await groq.chat.completions.create({
 			messages: [{ role: "user", content: prompt }],
-			model: "llama3-8b-8192", // Or another capable model
+			model: "llama-3.1-8b-instant", // Or another capable model
 			temperature: 0.6,
 			max_tokens: maxOutputTokens,
 			top_p: 1,
