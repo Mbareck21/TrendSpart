@@ -13,7 +13,6 @@ export interface GlassSpinnerProps extends GlassComponentProps {
 export function GlassSpinner({
 	customBlur,
 	customOpacity,
-	customBorder,
 	animation = true,
 	className = "",
 	size = "md",
