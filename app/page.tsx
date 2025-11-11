@@ -359,6 +359,20 @@ export default function Home() {
 				animate={{ opacity: 1, y: 0 }}
 				transition={{ duration: 0.5 }}>
 				<h2 className='text-xl font-semibold mb-4'>Find Trending Content</h2>
+				<div className=" bg-gray-800 px-4 pt-5 pb-4 sm:p-6 sm:pb-4 text-sm  mb-6 max-w-2xl mx-auto rounded-lg">
+					<p><span className="font-bold text-red-300">TrendSpark</span> is an
+						AI-driven platform that automates the content creation pipeline by
+						leveraging <strong>News API</strong> for real-time trend discovery
+						and <strong>Extractus</strong> for in-depth article analysis. It then
+						uses high-performance AI like <strong>GROQ</strong> to generate
+						creative ideas and scripts, and <strong>OpenAI</strong> for
+						professional-quality voice synthesis, offering a seamless workflow
+						that takes users from initial trend discovery and content extraction
+						all the way to final audio production.</p>
+
+				</div>
+
+
 
 				<div className='controls-container flex flex-wrap justify-center items-center gap-x-4 gap-y-5'>
 					{/* Keyword Search */}

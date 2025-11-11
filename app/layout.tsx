@@ -4,7 +4,7 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import "../components/glass/glass-styles.css";
 import { GlassMorphismProviderWrapper } from "../components/glass/GlassMorphismWrapper";
-
+import Footer from '../components/Footer';
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
@@ -21,7 +21,10 @@ export default function RootLayout({
 		<html lang='en'>
 			<body className={`${inter.className} min-h-screen`}>
 				<GlassMorphismProviderWrapper>
-					<div className='glass-animated-bg min-h-screen'>{children}</div>
+					<div className='glass-animated-bg min-h-screen'>
+						{children}
+						<Footer />
+					</div>
 				</GlassMorphismProviderWrapper>
 			</body>
 		</html>
