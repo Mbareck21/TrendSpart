@@ -17,12 +17,12 @@ export interface GlassButtonProps extends GlassComponentProps {
 	href?: string;
 	target?: string;
 	rel?: string;
+	ariaLabel?: string;
 }
 
 export function GlassButton({
 	children,
 	customBlur,
-	customOpacity,
 	customBorder,
 	animation = true,
 	className = "",
@@ -37,6 +37,7 @@ export function GlassButton({
 	href,
 	target,
 	rel,
+	ariaLabel,
 }: GlassButtonProps) {
 	const { theme } = useGlassMorphism();
 
@@ -50,27 +51,9 @@ export function GlassButton({
 		"2xl": "24px",
 	};
 
-	// Determine the opacity based on variant and theme
-	let opacityValue = customOpacity;
-	if (opacityValue === undefined) {
-		switch (variant) {
-			case "primary":
-				opacityValue = theme.isDarkMode ? 0.3 : 0.25;
-				break;
-			case "secondary":
-				opacityValue = theme.isDarkMode ? 0.2 : 0.15;
-				break;
-			case "outlined":
-				opacityValue = 0;
-				break;
-			default:
-				opacityValue = theme.baseOpacity;
-		}
-	}
-
 	// Size classes
 	const sizeClasses = {
-		sm: "text-xs py-1 px-2",
+		sm: "text-xs py-1.5 px-3",
 		md: "text-sm py-2 px-4",
 		lg: "text-base py-3 px-6",
 	};
@@ -80,33 +63,26 @@ export function GlassButton({
 		switch (variant) {
 			case "primary":
 				return {
-					backgroundColor: theme.isDarkMode
-						? `rgba(59, 130, 246, ${opacityValue})`
-						: `rgba(59, 130, 246, ${opacityValue})`,
-					border: `1px solid ${
+					backgroundColor: theme.colorPalette.accentSolid,
+					border: `1px solid ${theme.colorPalette.accentSolid}`,
+					color: "#ffffff",
+					boxShadow: `0 6px 18px -6px ${
 						theme.isDarkMode
-							? "rgba(99, 160, 255, 0.4)"
-							: "rgba(59, 130, 246, 0.4)"
+							? "rgba(59, 130, 246, 0.55)"
+							: "rgba(37, 99, 235, 0.45)"
 					}`,
-					color: theme.isDarkMode ? "#ffffff" : "#ffffff",
 				};
 			case "secondary":
 				return {
-					backgroundColor: theme.isDarkMode
-						? `rgba(30, 41, 59, ${opacityValue})`
-						: `rgba(255, 255, 255, ${opacityValue})`,
-					border: `1px solid ${
-						theme.isDarkMode ? "rgba(255, 255, 255, 0.1)" : "rgba(0, 0, 0, 0.1)"
-					}`,
-					color: theme.isDarkMode ? "#ffffff" : "#333333",
+					backgroundColor: theme.surface.sunken,
+					border: `1px solid ${theme.colorPalette.border}`,
+					color: theme.colorPalette.text,
 				};
 			case "outlined":
 				return {
 					backgroundColor: "transparent",
-					border: `1px solid ${
-						theme.isDarkMode ? "rgba(255, 255, 255, 0.2)" : "rgba(0, 0, 0, 0.2)"
-					}`,
-					color: theme.isDarkMode ? "#ffffff" : "#333333",
+					border: `1px solid ${theme.colorPalette.border}`,
+					color: theme.colorPalette.text,
 				};
 			default:
 				return {};
@@ -123,14 +99,15 @@ export function GlassButton({
 		: {};
 	// Common props for all element types
 	const commonProps = {
-		className: `rounded-lg font-medium transition-all flex items-center justify-center gap-2 ${
+		"aria-label": ariaLabel,
+		className: `glass-focus-ring cursor-pointer rounded-lg font-medium transition-all flex items-center justify-center gap-2 ${
 			sizeClasses[size]
 		} ${fullWidth ? "w-full" : ""} ${className}`,
 		style: {
 			backdropFilter: `blur(${blurMap[blurValue]})`,
 			WebkitBackdropFilter: `blur(${blurMap[blurValue]})`,
-			...(customBorder ? { border: `1px solid ${customBorder}` } : {}),
 			...getVariantStyles(),
+			...(customBorder ? { border: `1px solid ${customBorder}` } : {}),
 			...disabledStyles,
 		},
 		initial: animation ? { opacity: 0 } : false,

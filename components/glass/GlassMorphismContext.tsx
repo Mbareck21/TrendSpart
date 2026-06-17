@@ -16,9 +16,18 @@ export interface GlassMorphismTheme {
 	colorPalette: {
 		background: string;
 		text: string;
+		textMuted: string;
 		border: string;
 		accent: string;
+		accentSolid: string;
 	};
+	// Layered surface scale for clear depth/hierarchy
+	surface: {
+		base: string; // primary card background
+		raised: string; // nested / elevated panels
+		sunken: string; // recessed areas: inputs, content output
+	};
+	elevation: string; // box-shadow for resting cards
 	isDarkMode: boolean;
 }
 
@@ -33,26 +42,44 @@ export interface GlassComponentProps {
 
 // Default theme values
 const lightTheme: GlassMorphismTheme = {
-	blurIntensity: "md",
-	baseOpacity: 0.2,
+	blurIntensity: "lg",
+	baseOpacity: 0.7,
 	colorPalette: {
-		background: "rgba(255, 255, 255, 0.2)",
-		text: "#333333",
-		border: "rgba(255, 255, 255, 0.3)",
-		accent: "rgba(59, 130, 246, 0.7)",
+		background: "rgba(255, 255, 255, 0.72)",
+		text: "#0f172a",
+		textMuted: "#475569",
+		border: "rgba(15, 23, 42, 0.10)",
+		accent: "rgba(37, 99, 235, 0.9)",
+		accentSolid: "#2563eb",
 	},
+	surface: {
+		base: "rgba(255, 255, 255, 0.72)",
+		raised: "rgba(255, 255, 255, 0.88)",
+		sunken: "rgba(15, 23, 42, 0.04)",
+	},
+	elevation:
+		"0 10px 30px -12px rgba(15, 23, 42, 0.18), 0 2px 6px rgba(15, 23, 42, 0.06)",
 	isDarkMode: false,
 };
 
 const darkTheme: GlassMorphismTheme = {
-	blurIntensity: "md",
-	baseOpacity: 0.15,
+	blurIntensity: "lg",
+	baseOpacity: 0.55,
 	colorPalette: {
-		background: "rgba(15, 23, 42, 0.3)",
-		text: "#ffffff",
-		border: "rgba(255, 255, 255, 0.1)",
-		accent: "rgba(59, 130, 246, 0.6)",
+		background: "rgba(30, 41, 59, 0.55)",
+		text: "#f1f5f9",
+		textMuted: "#94a3b8",
+		border: "rgba(148, 163, 184, 0.18)",
+		accent: "rgba(96, 165, 250, 0.95)",
+		accentSolid: "#3b82f6",
 	},
+	surface: {
+		base: "rgba(30, 41, 59, 0.55)",
+		raised: "rgba(51, 65, 85, 0.5)",
+		sunken: "rgba(15, 23, 42, 0.55)",
+	},
+	elevation:
+		"0 12px 32px -12px rgba(0, 0, 0, 0.6), 0 2px 8px rgba(0, 0, 0, 0.35)",
 	isDarkMode: true,
 };
 
@@ -71,26 +98,30 @@ const GlassMorphismContext = createContext<
 export function GlassMorphismProvider({ children }: { children: ReactNode }) {
 	const [theme, setTheme] = useState<GlassMorphismTheme>(lightTheme);
 
-	// Check if dark mode is enabled in system or localStorage on initial load
+	// Resolve the dark/light preference on first load and rebuild from the
+	// canonical theme objects. We only read `isDarkMode` from storage so an
+	// older/partial saved shape can never produce a malformed theme.
 	useEffect(() => {
-		const savedTheme = localStorage.getItem("glassmorphismTheme");
-
-		if (savedTheme) {
-			setTheme(JSON.parse(savedTheme));
-		} else if (
-			window.matchMedia &&
-			window.matchMedia("(prefers-color-scheme: dark)").matches
-		) {
-			setTheme(darkTheme);
+		let prefersDark = false;
+		try {
+			const saved = localStorage.getItem("glassmorphismTheme");
+			if (saved) {
+				prefersDark = !!JSON.parse(saved).isDarkMode;
+			} else if (
+				window.matchMedia &&
+				window.matchMedia("(prefers-color-scheme: dark)").matches
+			) {
+				prefersDark = true;
+			}
+		} catch {
+			prefersDark = false;
 		}
 
-		// Apply theme to document for global CSS variables
-		document.documentElement.classList.toggle("dark", theme.isDarkMode);
+		setTheme(prefersDark ? darkTheme : lightTheme);
+		document.documentElement.classList.toggle("dark", prefersDark);
 	}, []);
 
-	// Save theme changes to localStorage
-	// We only need 'theme' in deps since it includes isDarkMode
-	// eslint-disable-next-line react-hooks/exhaustive-deps
+	// Persist theme changes and keep the document class in sync.
 	useEffect(() => {
 		localStorage.setItem("glassmorphismTheme", JSON.stringify(theme));
 		document.documentElement.classList.toggle("dark", theme.isDarkMode);

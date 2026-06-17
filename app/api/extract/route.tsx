@@ -89,14 +89,34 @@ export async function POST(
 		}
 	} catch (error: unknown) {
 		console.error(`API Route CATCH block in /api/extract for ${url}:`, error);
-		const errorMessage = "Extraction failed.";
-		const statusCode = 500;
+		// A single unreachable or unparseable article is a routine per-request
+		// outcome (the target site blocked us, timed out, or 404'd), not a server
+		// crash. Classify it so the UI doesn't read like the service is broken.
+		let errorMessage = "Couldn't read this article. Try another source.";
+		let statusCode = 422;
 		if (axios.isAxiosError(error)) {
-			/* ... axios error handling ... */
+			if (error.response) {
+				const status = error.response.status;
+				if (status === 401 || status === 403) {
+					errorMessage =
+						"This site blocks automated access or requires a subscription.";
+				} else if (status === 404) {
+					errorMessage = "This article could not be found (404).";
+				} else {
+					errorMessage = `The source site returned an error (${status}).`;
+				}
+				statusCode = 422;
+			} else {
+				errorMessage =
+					"The source site took too long to respond or was unreachable.";
+				statusCode = 504;
+			}
 		} else if (error instanceof Error) {
-			/* ... standard error handling ... */
+			errorMessage = "Couldn't extract readable content from this article.";
+			statusCode = 422;
 		} else {
-			/* ... unknown error handling ... */
+			errorMessage = "An unexpected error occurred during extraction.";
+			statusCode = 500;
 		}
 		return NextResponse.json({ error: errorMessage }, { status: statusCode });
 	}

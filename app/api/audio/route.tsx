@@ -7,98 +7,136 @@ const openai = OPENAI_API_KEY ? new OpenAI({ apiKey: OPENAI_API_KEY }) : null;
 
 // Define valid voice types based on OpenAI SDK
 const validVoices = [
-"alloy",
-"echo",
-"fable",
-"onyx",
-"nova",
-"shimmer",
+	"alloy",
+	"echo",
+	"fable",
+	"onyx",
+	"nova",
+	"shimmer",
 ] as const;
 
-type ValidVoice = typeof validVoices[number];
+type ValidVoice = (typeof validVoices)[number];
+
+// OpenAI TTS models callers are allowed to request.
+const validModels = ["tts-1", "tts-1-hd"] as const;
+
+// OpenAI TTS rejects input longer than this many characters.
+const MAX_TTS_CHARS = 4096;
 
 interface AudioRequestBody {
-scriptText?: string;
-ttsOptions?: {
-voice?: string; // Receive as string initially
-model?: string;
-// speed?: number;
-};
+	scriptText?: string;
+	ttsOptions?: {
+		voice?: string; // Receive as string initially
+		model?: string;
+	};
 }
 
 export async function POST(request: NextRequest) {
-// Return type is dynamic
-console.log("API Route: /api/audio received POST request");
+	console.log("API Route: /api/audio received POST request");
 
-if (!openai) {
-console.error(
-"API Route Error: OpenAI client not initialized (API Key missing?).",
-);
-return NextResponse.json(
-{ error: "Server configuration error: Audio service unavailable." },
-{ status: 503 },
-);
-}
+	if (!openai) {
+		console.error(
+			"API Route Error: OpenAI client not initialized (API Key missing?).",
+		);
+		return NextResponse.json(
+			{ error: "Server configuration error: Audio service unavailable." },
+			{ status: 503 },
+		);
+	}
 
-let requestBody: AudioRequestBody;
-try {
-requestBody = await request.json();
-} catch {
-console.error("API Route Error: Invalid JSON body in /api/audio");
-return NextResponse.json(
-{
-error:
-"Invalid request body. Expecting JSON with 'scriptText' and optional 'ttsOptions'.",
-},
-{ status: 400 },
-);
-}
+	let requestBody: AudioRequestBody;
+	try {
+		requestBody = await request.json();
+	} catch {
+		console.error("API Route Error: Invalid JSON body in /api/audio");
+		return NextResponse.json(
+			{
+				error:
+					"Invalid request body. Expecting JSON with 'scriptText' and optional 'ttsOptions'.",
+			},
+			{ status: 400 },
+		);
+	}
 
-// Validate request body
-const scriptText = requestBody.scriptText;
-if (!scriptText || typeof scriptText !== "string" || scriptText.trim() === "") {
-console.error("API Route Error: Missing or invalid 'scriptText' in request body.");
-return NextResponse.json(
-{ error: "Missing or invalid 'scriptText' in request body." },
-{ status: 400 },
-);
-}
+	// Validate request body
+	const scriptText = requestBody.scriptText;
+	if (
+		!scriptText ||
+		typeof scriptText !== "string" ||
+		scriptText.trim() === ""
+	) {
+		console.error(
+			"API Route Error: Missing or invalid 'scriptText' in request body.",
+		);
+		return NextResponse.json(
+			{ error: "Missing or invalid 'scriptText' in request body." },
+			{ status: 400 },
+		);
+	}
 
-// Extract TTS options from request body
-const { ttsOptions = {} } = requestBody;
-const voiceOption = (ttsOptions.voice || "nova") as ValidVoice;
-const modelOption = ttsOptions.model || "tts-1";
-// const speedOption = ttsOptions.speed || 1.0;
+	// Guard OpenAI's 4096-character input limit with a clear 400 rather than
+	// letting the SDK throw and surface as an opaque 500.
+	if (scriptText.length > MAX_TTS_CHARS) {
+		return NextResponse.json(
+			{
+				error: `Script is too long for audio: ${scriptText.length}/${MAX_TTS_CHARS} characters. Shorten the script and try again.`,
+			},
+			{ status: 400 },
+		);
+	}
 
-// Validate voice option
-    const voice = voiceOption && validVoices.includes(voiceOption as ValidVoice) ? (voiceOption as ValidVoice) : "nova";
+	// Validate voice and model against allow-lists.
+	const { ttsOptions = {} } = requestBody;
+	const requestedVoice = (ttsOptions.voice || "nova") as ValidVoice;
+	const voice = validVoices.includes(requestedVoice) ? requestedVoice : "nova";
 
-try {
-console.log(`API Route: Generating audio with voice: ${voice}, model: ${modelOption}`);
+	const requestedModel = ttsOptions.model || "tts-1";
+	const model = (validModels as readonly string[]).includes(requestedModel)
+		? requestedModel
+		: "tts-1";
 
-// Generate speech
-const mp3 = await openai.audio.speech.create({
-model: modelOption,
-voice,
-input: scriptText,
-});
+	try {
+		console.log(
+			`API Route: Generating audio with voice: ${voice}, model: ${model}`,
+		);
 
-// Get audio data as ArrayBuffer
-const audioData = await mp3.arrayBuffer();
+		// Generate speech
+		const mp3 = await openai.audio.speech.create({
+			model,
+			voice,
+			input: scriptText,
+		});
 
-// Return audio as response
-return new NextResponse(audioData, {
-status: 200,
-headers: {
-"Content-Type": "audio/mpeg",
-"Content-Length": audioData.byteLength.toString(),
-},
-});
-} catch (error) {
-console.error("API Route Error: Failed to generate audio:", error);
-return NextResponse.json(
-{ error: "Failed to generate audio. Please try again later." },
-{ status: 500 },
-);
-}
+		// Get audio data as ArrayBuffer
+		const audioData = await mp3.arrayBuffer();
+
+		// Return audio as response
+		return new NextResponse(audioData, {
+			status: 200,
+			headers: {
+				"Content-Type": "audio/mpeg",
+				"Content-Length": audioData.byteLength.toString(),
+			},
+		});
+	} catch (error) {
+		// Surface the real OpenAI failure (auth, quota, rate limit, bad input)
+		// instead of masking every error as a generic 500.
+		console.error("API Route Error: Failed to generate audio:", error);
+		if (error instanceof OpenAI.APIError) {
+			console.error(
+				`OpenAI TTS failure: status=${error.status} code=${error.code} message=${error.message}`,
+			);
+			return NextResponse.json(
+				{
+					error: `Audio generation failed (OpenAI): ${error.message}`,
+					code: error.code ?? null,
+				},
+				{ status: 502 },
+			);
+		}
+		return NextResponse.json(
+			{ error: "Failed to generate audio. Please try again later." },
+			{ status: 500 },
+		);
+	}
 }

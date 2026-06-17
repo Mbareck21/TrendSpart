@@ -9,6 +9,8 @@ export interface GlassCardProps extends GlassComponentProps {
 	onClick?: () => void;
 	isSelected?: boolean;
 	hoverEffect?: boolean;
+	/** Use the lighter elevated surface so nested cards stand out from their parent. */
+	raised?: boolean;
 }
 
 export function GlassCard({
@@ -21,6 +23,7 @@ export function GlassCard({
 	onClick,
 	isSelected = false,
 	hoverEffect = true,
+	raised = false,
 }: GlassCardProps) {
 	const { theme } = useGlassMorphism();
 
@@ -34,35 +37,50 @@ export function GlassCard({
 		"2xl": "24px",
 	};
 
-	// Determine the opacity value
-	const opacityValue =
-		customOpacity !== undefined ? customOpacity : theme.baseOpacity;
+	// Background: layered surface by default; honour customOpacity if provided.
+	const backgroundColor =
+		customOpacity !== undefined
+			? theme.isDarkMode
+				? `rgba(15, 23, 42, ${customOpacity})`
+				: `rgba(255, 255, 255, ${customOpacity})`
+			: raised
+			? theme.surface.raised
+			: theme.surface.base;
 
 	// Determine border color
 	const borderColor = customBorder || theme.colorPalette.border;
 
+	// Subtle top highlight reinforces the frosted-glass look on dark surfaces.
+	const highlight = theme.isDarkMode
+		? "inset 0 1px 0 rgba(255, 255, 255, 0.06)"
+		: "inset 0 1px 0 rgba(255, 255, 255, 0.7)";
+	const restingShadow = `${highlight}, ${theme.elevation}`;
+	const hoverShadow = theme.isDarkMode
+		? `${highlight}, 0 18px 40px -14px rgba(0, 0, 0, 0.7), 0 4px 12px rgba(0, 0, 0, 0.4)`
+		: `${highlight}, 0 18px 40px -14px rgba(15, 23, 42, 0.22), 0 4px 12px rgba(15, 23, 42, 0.08)`;
+
 	const baseStyles = {
-		backgroundColor: theme.isDarkMode
-			? `rgba(15, 23, 42, ${opacityValue})`
-			: `rgba(255, 255, 255, ${opacityValue})`,
+		backgroundColor,
 		backdropFilter: `blur(${blurMap[blurValue]})`,
 		WebkitBackdropFilter: `blur(${blurMap[blurValue]})`,
 		border: `1px solid ${borderColor}`,
-		boxShadow: theme.isDarkMode
-			? "0 4px 6px rgba(0, 0, 0, 0.1), 0 1px 3px rgba(0, 0, 0, 0.08)"
-			: "0 4px 6px rgba(0, 0, 0, 0.05), 0 1px 3px rgba(0, 0, 0, 0.1)",
+		boxShadow: restingShadow,
 	};
 
 	// Apply additional styles for selected state
+	// Override the full `border` shorthand (not the borderColor longhand) so the
+	// style object never mixes shorthand + longhand across selected/deselected
+	// renders, which would trigger React's style-diff warning.
 	const selectedStyles = isSelected
 		? {
-				boxShadow: `0 0 0 2px ${theme.colorPalette.accent}, ${baseStyles.boxShadow}`,
+				border: `1px solid ${theme.colorPalette.accentSolid}`,
+				boxShadow: `0 0 0 2px ${theme.colorPalette.accentSolid}, ${restingShadow}`,
 		  }
 		: {};
 
 	return (
 		<motion.div
-			className={`rounded-xl p-4 overflow-hidden transition-all ${className}`}
+			className={`rounded-xl p-4 overflow-hidden transition-colors ${className}`}
 			style={{
 				...baseStyles,
 				...selectedStyles,
@@ -71,17 +89,15 @@ export function GlassCard({
 			animate={animation ? { opacity: 1, y: 0 } : false}
 			transition={{ duration: 0.3 }}
 			whileHover={
-				hoverEffect
+				hoverEffect && !isSelected
 					? {
-							scale: 1.02,
-							boxShadow: theme.isDarkMode
-								? "0 10px 15px rgba(0, 0, 0, 0.2), 0 4px 6px rgba(0, 0, 0, 0.15)"
-								: "0 10px 15px rgba(0, 0, 0, 0.1), 0 4px 6px rgba(0, 0, 0, 0.05)",
+							scale: 1.01,
+							boxShadow: hoverShadow,
 					  }
 					: {}
 			}
 			onClick={onClick}
-			whileTap={onClick ? { scale: 0.98 } : undefined}>
+			whileTap={onClick ? { scale: 0.99 } : undefined}>
 			{children}
 		</motion.div>
 	);

@@ -2,26 +2,43 @@
 
 @import "tailwindcss";
 
-/* Glass Morphism Theme Variables */
+/* Bind Tailwind's `dark:` variant to the .dark class (toggled by the theme
+   provider) instead of the default prefers-color-scheme media query. */
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* ===========================================================================
+   Design tokens — semantic variables mirrored under .dark.
+   Page-level surfaces (intro, stepper, markdown, audio) read these so they
+   theme instantly off the pre-hydration `.dark` class (no flash of light UI).
+   =========================================================================== */
 :root {
 	/* Base colors */
-	--foreground-rgb: 0, 0, 0;
-	--background-start-rgb: 240, 240, 245;
-	--background-end-rgb: 255, 255, 255;
+	--foreground-rgb: 15, 23, 42;
+	--background-start-rgb: 241, 245, 249; /* slate-100 */
+	--background-end-rgb: 226, 232, 240; /* slate-200 */
 
-	/* Glass Morphism Variables */
+	/* Accent */
+	--accent: 37, 99, 235; /* blue-600 */
+	--accent-soft: 59, 130, 246; /* blue-500 */
+
+	/* Layered surfaces */
+	--surface-base: 255, 255, 255;
+	--surface-base-opacity: 0.72;
+	--surface-raised: 255, 255, 255;
+	--surface-raised-opacity: 0.88;
+	--surface-sunken: 15, 23, 42;
+	--surface-sunken-opacity: 0.04;
+
+	--border-glass: rgba(15, 23, 42, 0.1);
+	--text-strong: #0f172a;
+	--text-muted: #475569;
+
+	/* Glass Morphism blur scale */
 	--glass-blur-sm: 4px;
 	--glass-blur-md: 8px;
 	--glass-blur-lg: 12px;
 	--glass-blur-xl: 16px;
 	--glass-blur-2xl: 24px;
-
-	--glass-bg-opacity: 0.2;
-	--glass-border-opacity: 0.3;
-
-	--glass-bg-color: 255, 255, 255;
-	--glass-border-color: 255, 255, 255;
-	--glass-shadow-color: 0, 0, 0;
 	--glass-accent-color: 59, 130, 246;
 
 	/* Transitions */
@@ -31,98 +48,288 @@
 }
 
 .dark {
-	/* Dark mode colors */
-	--foreground-rgb: 255, 255, 255;
-	--background-start-rgb: 15, 23, 42;
-	--background-end-rgb: 10, 15, 30;
+	--foreground-rgb: 241, 245, 249;
+	--background-start-rgb: 11, 17, 32; /* deep slate */
+	--background-end-rgb: 7, 11, 22;
 
-	/* Glass Morphism Variables - Dark Mode */
-	--glass-bg-opacity: 0.15;
-	--glass-border-opacity: 0.2;
+	--accent: 96, 165, 250; /* blue-400 */
+	--accent-soft: 59, 130, 246; /* blue-500 */
 
-	--glass-bg-color: 15, 23, 42;
-	--glass-border-color: 255, 255, 255;
-	--glass-shadow-color: 0, 0, 0;
-	--glass-accent-color: 59, 130, 246;
+	--surface-base: 30, 41, 59; /* slate-800 */
+	--surface-base-opacity: 0.55;
+	--surface-raised: 51, 65, 85; /* slate-700 */
+	--surface-raised-opacity: 0.5;
+	--surface-sunken: 15, 23, 42; /* slate-900 */
+	--surface-sunken-opacity: 0.55;
+
+	--border-glass: rgba(148, 163, 184, 0.18);
+	--text-strong: #f1f5f9;
+	--text-muted: #94a3b8;
+
+	--glass-accent-color: 96, 165, 250;
+}
+
+html {
+	color-scheme: light;
+}
+.dark {
+	color-scheme: dark;
+}
+
+h1,
+h2,
+h3 {
+	font-family: var(--font-display), system-ui, sans-serif;
+	letter-spacing: -0.01em;
 }
 
 body {
 	color: rgb(var(--foreground-rgb));
-	background: linear-gradient(
+	background:
+		radial-gradient(
+			1200px 600px at 15% -10%,
+			rgba(var(--accent-soft), 0.12),
+			transparent 60%
+		),
+		radial-gradient(
+			1000px 500px at 100% 0%,
+			rgba(139, 92, 246, 0.1),
+			transparent 55%
+		),
+		linear-gradient(
 			to bottom,
-			transparent,
+			rgb(var(--background-start-rgb)),
 			rgb(var(--background-end-rgb))
-		)
-		rgb(var(--background-start-rgb));
+		);
+	background-attachment: fixed;
+	min-height: 100vh;
 }
 
-/* Custom utility classes (optional) */
+/* ===========================================================================
+   Utilities
+   =========================================================================== */
 @layer utilities {
 	.text-balance {
 		text-wrap: balance;
 	}
-	/* Custom form focus styles that don't rely on Tailwind utilities */
+	.surface-sunken {
+		background-color: rgba(
+			var(--surface-sunken),
+			var(--surface-sunken-opacity)
+		);
+		border: 1px solid var(--border-glass);
+	}
 	.form-input-focus:focus,
 	.form-select-focus:focus {
 		outline: none;
 		border-color: transparent;
-		box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.5); /* blue-500 with opacity */
+		box-shadow: 0 0 0 2px rgba(var(--accent), 0.5);
 	}
 }
 
-/* Style for clickable items */
-.clickable {
-	cursor: pointer;
-	transition: background-color 0.2s ease;
+/* Themed, thin scrollbars for content panels */
+.ts-scroll {
+	scrollbar-width: thin;
+	scrollbar-color: rgba(var(--foreground-rgb), 0.25) transparent;
 }
-.clickable:hover {
-	/* Adjust hover based on light/dark mode if needed */
-	background-color: rgba(128, 128, 128, 0.1);
+.ts-scroll::-webkit-scrollbar {
+	width: 8px;
+	height: 8px;
+}
+.ts-scroll::-webkit-scrollbar-thumb {
+	background-color: rgba(var(--foreground-rgb), 0.22);
+	border-radius: 9999px;
+}
+.ts-scroll::-webkit-scrollbar-thumb:hover {
+	background-color: rgba(var(--foreground-rgb), 0.35);
+}
+.ts-scroll::-webkit-scrollbar-track {
+	background: transparent;
 }
 
-/* Specific styling for generated text areas */
+/* Background patterns for glass morphism */
+.glass-pattern-dots {
+	background-image: radial-gradient(
+		rgba(var(--glass-accent-color), 0.12) 1px,
+		transparent 1px
+	);
+	background-size: 22px 22px;
+}
+
+/* Animated background gradient layer */
+.glass-animated-bg {
+	background: linear-gradient(
+		45deg,
+		rgba(var(--accent-soft), 0.05),
+		rgba(139, 92, 246, 0.05),
+		rgba(var(--accent-soft), 0.05)
+	);
+	background-size: 200% 200%;
+	animation: glass-gradient 18s ease infinite;
+}
+
+@keyframes glass-gradient {
+	0% {
+		background-position: 0% 50%;
+	}
+	50% {
+		background-position: 100% 50%;
+	}
+	100% {
+		background-position: 0% 50%;
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.glass-animated-bg {
+		animation: none;
+	}
+}
+
+/* Accessibility focus styles for glass components */
+.glass-focus-ring:focus-visible {
+	outline: 2px solid rgba(var(--accent), 0.85);
+	outline-offset: 2px;
+}
+
+/* ===========================================================================
+   Content output (extracted article text)
+   =========================================================================== */
 .content-output {
 	white-space: pre-wrap;
 	word-wrap: break-word;
-	background-color: rgba(255, 255, 255, 0.05);
-	border: 1px solid rgba(255, 255, 255, 0.1);
-	border-radius: 0.375rem; /* rounded-md */
-	padding: 0.75rem; /* p-3 */
-	font-family: monospace;
-	font-size: 0.875rem; /* text-sm */
-	line-height: 1.6;
-	max-height: 400px;
-	overflow-y: auto;
-}
-.content-output code {
-	background-color: rgba(0, 0, 0, 0.1);
-	padding: 0.1em 0.3em;
-	border-radius: 0.2em;
+	font-size: 0.9rem;
+	line-height: 1.65;
+	color: rgb(var(--foreground-rgb));
 }
 
-/* Improved styling for select dropdowns */
+/* ===========================================================================
+   Markdown rendering for AI Ideas + Script output
+   =========================================================================== */
+.markdown-body {
+	font-size: 0.9rem;
+	line-height: 1.7;
+	color: rgb(var(--foreground-rgb));
+	word-break: break-word;
+}
+.markdown-body > :first-child {
+	margin-top: 0;
+}
+.markdown-body h1,
+.markdown-body h2,
+.markdown-body h3,
+.markdown-body h4 {
+	font-family: var(--font-display), system-ui, sans-serif;
+	font-weight: 600;
+	line-height: 1.3;
+	color: var(--text-strong);
+	margin: 1.1em 0 0.5em;
+}
+.markdown-body h1 {
+	font-size: 1.2rem;
+}
+.markdown-body h2 {
+	font-size: 1.08rem;
+}
+.markdown-body h3 {
+	font-size: 1rem;
+}
+.markdown-body h4 {
+	font-size: 0.92rem;
+}
+.markdown-body p {
+	margin: 0.6em 0;
+}
+.markdown-body strong {
+	font-weight: 600;
+	color: var(--text-strong);
+}
+.markdown-body em {
+	font-style: italic;
+}
+.markdown-body ul,
+.markdown-body ol {
+	margin: 0.5em 0 0.8em;
+	padding-left: 1.35em;
+}
+.markdown-body ul {
+	list-style: disc;
+}
+.markdown-body ol {
+	list-style: decimal;
+}
+.markdown-body li {
+	margin: 0.3em 0;
+}
+.markdown-body li::marker {
+	color: rgba(var(--accent), 0.9);
+}
+.markdown-body a {
+	color: rgb(var(--accent));
+	text-decoration: underline;
+	text-underline-offset: 2px;
+}
+.markdown-body blockquote {
+	margin: 0.7em 0;
+	padding: 0.4em 0.9em;
+	border-left: 3px solid rgba(var(--accent), 0.5);
+	color: var(--text-muted);
+}
+.markdown-body code {
+	font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+	font-size: 0.82em;
+	background-color: rgba(var(--surface-sunken), 0.5);
+	border: 1px solid var(--border-glass);
+	padding: 0.1em 0.35em;
+	border-radius: 0.3em;
+}
+.markdown-body pre {
+	background-color: rgba(var(--surface-sunken), 0.6);
+	border: 1px solid var(--border-glass);
+	border-radius: 0.5rem;
+	padding: 0.75rem;
+	overflow-x: auto;
+	margin: 0.7em 0;
+}
+.markdown-body pre code {
+	background: transparent;
+	border: 0;
+	padding: 0;
+}
+.markdown-body hr {
+	border: 0;
+	border-top: 1px solid var(--border-glass);
+	margin: 1em 0;
+}
+
+/* ===========================================================================
+   Native audio player — match the glass theme instead of stark white
+   =========================================================================== */
+audio {
+	width: 100%;
+	height: 40px;
+	border-radius: 9999px;
+}
+.dark audio {
+	color-scheme: dark;
+}
+audio::-webkit-media-controls-panel {
+	background-color: rgba(var(--surface-sunken), 0.6);
+}
+
+/* ===========================================================================
+   Select dropdown option lists (native menu)
+   =========================================================================== */
 select option {
 	background-color: rgb(var(--background-end-rgb));
 	color: rgb(var(--foreground-rgb));
 	padding: 8px;
 	font-size: 0.9rem;
 }
-
-/* Dark mode options */
 .dark select option {
 	background-color: #1e293b;
 	color: #f1f5f9;
 }
-
-/* Enhance contrast for improved readability */
 select {
 	font-weight: 500;
-}
-
-/* Make dropdown menus more visible */
-select:focus {
-	box-shadow: 0 0 0 2px rgba(var(--glass-accent-color), 0.5);
-}
-.content-output strong {
-	font-weight: 600;
 }

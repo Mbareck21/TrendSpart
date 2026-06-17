@@ -42,3 +42,4 @@ next-env.d.ts
 output.mp3
 
 .vercel
+.claude

@@ -10,6 +10,8 @@ import {
 	GlassSpinner,
 } from "@/components/glass";
 import { motion, AnimatePresence } from "framer-motion";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 
 // --- Define Interfaces ---
 interface Article {
@@ -88,6 +90,133 @@ const ttsVoices: TtsVoice[] = [
 	"nova",
 	"shimmer",
 ];
+
+// --- Workflow step UI ---
+type StepState = "done" | "active" | "todo";
+
+const STEP_LABELS = ["Find Trends", "Extract", "Ideas", "Script & Audio"];
+
+function StepCircle({
+	n,
+	state,
+	size = "md",
+}: {
+	n: number;
+	state: StepState;
+	size?: "sm" | "md";
+}) {
+	const dim = size === "sm" ? "h-6 w-6 text-xs" : "h-7 w-7 text-sm";
+	const base =
+		"flex items-center justify-center rounded-full font-semibold shrink-0 transition-colors";
+
+	if (state === "done") {
+		return (
+			<span
+				className={`${base} ${dim} text-white`}
+				style={{ backgroundColor: "rgb(var(--accent))" }}>
+				<svg
+					width='14'
+					height='14'
+					viewBox='0 0 24 24'
+					fill='none'
+					stroke='currentColor'
+					strokeWidth='3'
+					strokeLinecap='round'
+					strokeLinejoin='round'
+					aria-hidden='true'>
+					<polyline points='20 6 9 17 4 12' />
+				</svg>
+			</span>
+		);
+	}
+
+	if (state === "active") {
+		return (
+			<span
+				className={`${base} ${dim} text-white`}
+				style={{
+					backgroundColor: "rgb(var(--accent))",
+					boxShadow: "0 0 0 4px rgba(var(--accent), 0.22)",
+				}}>
+				{n}
+			</span>
+		);
+	}
+
+	return (
+		<span
+			className={`${base} ${dim}`}
+			style={{
+				backgroundColor: "rgba(var(--surface-sunken), 0.5)",
+				color: "var(--text-muted)",
+				border: "1px solid var(--border-glass)",
+			}}>
+			{n}
+		</span>
+	);
+}
+
+function Stepper({ states }: { states: StepState[] }) {
+	return (
+		<div className='flex items-center justify-center gap-1 sm:gap-2 flex-wrap'>
+			{STEP_LABELS.map((label, i) => (
+				<React.Fragment key={label}>
+					<div className='flex items-center gap-2'>
+						<StepCircle n={i + 1} state={states[i]} />
+						<span
+							className='text-sm font-medium hidden sm:inline'
+							style={{
+								color:
+									states[i] === "todo"
+										? "var(--text-muted)"
+										: "var(--text-strong)",
+							}}>
+							{label}
+						</span>
+					</div>
+					{i < STEP_LABELS.length - 1 && (
+						<div
+							className='h-0.5 w-5 sm:w-10 rounded-full'
+							style={{
+								backgroundColor:
+									states[i] === "done"
+										? "rgb(var(--accent))"
+										: "var(--border-glass)",
+							}}
+						/>
+					)}
+				</React.Fragment>
+			))}
+		</div>
+	);
+}
+
+function ColumnHeader({
+	n,
+	state,
+	title,
+}: {
+	n: number;
+	state: StepState;
+	title: string;
+}) {
+	return (
+		<div
+			className='flex items-center gap-2.5 mb-4 pb-3 border-b'
+			style={{ borderColor: "var(--border-glass)" }}>
+			<StepCircle n={n} state={state} size='sm' />
+			<h2 className='text-lg font-semibold'>{title}</h2>
+		</div>
+	);
+}
+
+function Markdown({ children }: { children: string }) {
+	return (
+		<div className='markdown-body'>
+			<ReactMarkdown remarkPlugins={[remarkGfm]}>{children}</ReactMarkdown>
+		</div>
+	);
+}
 
 // --- Main Page Component ---
 export default function Home() {
@@ -313,7 +442,7 @@ export default function Home() {
 			const blob = await response.blob();
 			const url = window.URL.createObjectURL(blob);
 			setAudioUrl(url);
-			setAudioStatus(`✅ Audio generated successfully!`);
+			setAudioStatus(`Audio generated successfully!`);
 		} catch (error) {
 			setAudioError(error instanceof Error ? error.message : String(error));
 		} finally {
@@ -332,21 +461,51 @@ export default function Home() {
 		document.body.appendChild(a);
 		a.click();
 		a.remove();
-		setAudioStatus(`✅ Audio download started! Check browser downloads.`);
+		setAudioStatus(`Audio download started! Check browser downloads.`);
 	}, [audioUrl]);
+
+	// Derive workflow step states from the pipeline data we already track.
+	const stepStates: StepState[] = [
+		trends.length > 0 ? "done" : "active",
+		extractedText ? "done" : trends.length > 0 ? "active" : "todo",
+		generatedIdeas ? "done" : extractedText ? "active" : "todo",
+		finalScript ? "done" : generatedIdeas ? "active" : "todo",
+	];
 
 	// --- Render Component ---
 	return (
-		<main className='container mx-auto px-4 py-8 max-w-full'>
+		<main className='container mx-auto px-4 py-8 max-w-[1600px]'>
 			<GlassNavigation
-				title='TrendSpark ✨'
+				title='TrendSpark'
 				className='mb-6'
 				sticky
+				logo={
+					<span
+						className='flex h-8 w-8 items-center justify-center rounded-lg text-white'
+						style={{
+							background:
+								"linear-gradient(135deg, rgb(var(--accent)), #8b5cf6)",
+							boxShadow: "0 4px 12px -2px rgba(var(--accent), 0.5)",
+						}}>
+						<svg
+							xmlns='http://www.w3.org/2000/svg'
+							width='18'
+							height='18'
+							viewBox='0 0 24 24'
+							fill='currentColor'
+							aria-hidden='true'>
+							<path d='M12 2l2.2 5.8L20 10l-5.8 2.2L12 18l-2.2-5.8L4 10l5.8-2.2z' />
+						</svg>
+					</span>
+				}
 				rightContent={
 					isLoading && (
-						<div className='flex items-center gap-2'>
-							<div className='w-4 h-4 rounded-full border-2 border-blue-500 border-t-transparent animate-spin' />
-							<span>{loadingMessage}</span>
+						<div className='flex items-center gap-2 text-sm'>
+							<div
+								className='w-4 h-4 rounded-full border-2 border-t-transparent animate-spin'
+								style={{ borderColor: "rgb(var(--accent))", borderTopColor: "transparent" }}
+							/>
+							<span className='hidden sm:inline'>{loadingMessage}</span>
 						</div>
 					)
 				}
@@ -354,27 +513,27 @@ export default function Home() {
 
 			{/* Search Controls */}
 			<motion.div
-				className='glass-pattern-dots p-6 rounded-xl mb-8'
+				className='glass-pattern-dots p-6 sm:p-8 rounded-2xl mb-6'
+				style={{
+					backgroundColor:
+						"rgba(var(--surface-base), var(--surface-base-opacity))",
+					border: "1px solid var(--border-glass)",
+					backdropFilter: "blur(14px)",
+					WebkitBackdropFilter: "blur(14px)",
+				}}
 				initial={{ opacity: 0, y: -10 }}
 				animate={{ opacity: 1, y: 0 }}
 				transition={{ duration: 0.5 }}>
-				<h2 className='text-xl font-semibold mb-4'>Find Trending Content</h2>
-				<div className=" bg-gray-800 px-4 pt-5 pb-4 sm:p-6 sm:pb-4 text-sm  mb-6 max-w-2xl mx-auto rounded-lg">
-					<p><span className="font-bold text-red-300">TrendSpark</span> is an
-						AI-driven platform that automates the content creation pipeline by
-						leveraging <strong>News API</strong> for real-time trend discovery
-						and <strong>Extractus</strong> for in-depth article analysis. It then
-						uses high-performance AI like <strong>GROQ</strong> to generate
-						creative ideas and scripts, and <strong>OpenAI</strong> for
-						professional-quality voice synthesis, offering a seamless workflow
-						that takes users from initial trend discovery and content extraction
-						all the way to final audio production.</p>
-
+				<div className='text-center max-w-2xl mx-auto mb-6'>
+					<h2 className='text-2xl font-bold mb-2'>Find Trending Content</h2>
+					<p className='text-sm' style={{ color: "var(--text-muted)" }}>
+						From real-time news to a ready-to-publish voiceover. Search a topic or
+						pull the top headlines, then move through each step in the columns
+						below.
+					</p>
 				</div>
 
-
-
-				<div className='controls-container flex flex-wrap justify-center items-center gap-x-4 gap-y-5'>
+				<div className='controls-container flex flex-wrap justify-center items-end gap-x-4 gap-y-5'>
 					{/* Keyword Search */}
 					<div className='control-group flex flex-col sm:flex-row items-start sm:items-center gap-2 w-full md:w-auto'>
 						<GlassInput
@@ -473,19 +632,26 @@ export default function Home() {
 				</div>
 			</motion.div>
 
+			{/* Workflow progress */}
+			<motion.div
+				className='mb-8 overflow-x-auto ts-scroll'
+				initial={{ opacity: 0 }}
+				animate={{ opacity: 1 }}
+				transition={{ duration: 0.5, delay: 0.15 }}>
+				<Stepper states={stepStates} />
+			</motion.div>
+
 			{/* Main Content Grid */}
-			<div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6'>
+			<div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5 items-stretch'>
 				{/* Column 1: Results */}
 				<motion.div
 					initial={{ opacity: 0, y: 20 }}
 					animate={{ opacity: 1, y: 0 }}
 					transition={{ duration: 0.5, delay: 0.1 }}>
-					<GlassCard className='h-full flex flex-col'>
-						<h2 className='text-xl font-semibold mb-3 text-center pb-2 border-b border-white/10 dark:border-black/30'>
-							Results
-						</h2>
+					<GlassCard hoverEffect={false} className='h-full flex flex-col'>
+						<ColumnHeader n={1} state={stepStates[0]} title='Results' />
 
-						<div className='flex-grow overflow-y-auto h-96 space-y-3 pr-2 -mr-2'>
+						<div className='flex-grow overflow-y-auto ts-scroll h-[56vh] min-h-[18rem] space-y-3 pr-2 -mr-2'>
 							{/* Skeleton Loader */}
 							{isLoading &&
 								!trends.length &&
@@ -526,12 +692,15 @@ export default function Home() {
 										exit={{ opacity: 0, scale: 0.95 }}
 										transition={{ duration: 0.3, delay: index * 0.05 }}>
 										<GlassCard
+											raised
 											isSelected={selectedUrl === article.url}
 											className='mb-3'>
-											<h3 className='font-semibold text-sm mb-1'>
+											<h3 className='font-semibold text-sm mb-1 leading-snug'>
 												{article.title}
 											</h3>
-											<p className='text-xs opacity-75 mb-2'>
+											<p
+												className='text-xs mb-2'
+												style={{ color: "var(--text-muted)" }}>
 												{article.source} (
 												{article.publishedAt
 													? new Date(article.publishedAt).toLocaleDateString()
@@ -574,10 +743,12 @@ export default function Home() {
 					initial={{ opacity: 0, y: 20 }}
 					animate={{ opacity: 1, y: 0 }}
 					transition={{ duration: 0.5, delay: 0.2 }}>
-					<GlassCard className='h-full flex flex-col'>
-						<h2 className='text-xl font-semibold mb-3 text-center pb-2 border-b border-white/10 dark:border-black/30'>
-							Extracted Content
-						</h2>
+					<GlassCard hoverEffect={false} className='h-full flex flex-col'>
+						<ColumnHeader
+							n={2}
+							state={stepStates[1]}
+							title='Extracted Content'
+						/>
 
 						<div className='mb-3 flex justify-end'>
 							<GlassButton
@@ -588,7 +759,7 @@ export default function Home() {
 							</GlassButton>
 						</div>
 
-						<div className='content-output flex-grow overflow-y-auto h-80'>
+						<div className='content-output flex-grow overflow-y-auto ts-scroll h-[56vh] min-h-[18rem]'>
 							{isLoading && loadingMessage.includes("Extracting") && (
 								<div className='h-full flex items-center justify-center'>
 									<GlassSpinner size='md' label='Extracting content...' />
@@ -642,10 +813,12 @@ export default function Home() {
 					initial={{ opacity: 0, y: 20 }}
 					animate={{ opacity: 1, y: 0 }}
 					transition={{ duration: 0.5, delay: 0.3 }}>
-					<GlassCard className='h-full flex flex-col'>
-						<h2 className='text-xl font-semibold mb-3 text-center pb-2 border-b border-white/10 dark:border-black/30'>
-							Generated Ideas
-						</h2>
+					<GlassCard hoverEffect={false} className='h-full flex flex-col'>
+						<ColumnHeader
+							n={3}
+							state={stepStates[2]}
+							title='Generated Ideas'
+						/>
 
 						<div className='mb-3 space-y-3'>
 							<div className='flex items-center gap-3 flex-wrap'>
@@ -688,7 +861,7 @@ export default function Home() {
 							</div>
 						</div>
 
-						<div className='content-output flex-grow overflow-y-auto h-80'>
+						<div className='content-output flex-grow overflow-y-auto ts-scroll h-[56vh] min-h-[18rem]'>
 							{isLoading && loadingMessage.includes("Generating ideas") && (
 								<div className='h-full flex items-center justify-center'>
 									<GlassSpinner size='md' label='Generating ideas...' />
@@ -728,9 +901,7 @@ export default function Home() {
 									initial={{ opacity: 0 }}
 									animate={{ opacity: 1 }}
 									transition={{ duration: 0.5 }}>
-									<pre className='whitespace-pre-wrap break-words font-sans text-sm p-2'>
-										{generatedIdeas}
-									</pre>
+									<Markdown>{generatedIdeas}</Markdown>
 								</motion.div>
 							)}
 						</div>
@@ -742,10 +913,12 @@ export default function Home() {
 					initial={{ opacity: 0, y: 20 }}
 					animate={{ opacity: 1, y: 0 }}
 					transition={{ duration: 0.5, delay: 0.4 }}>
-					<GlassCard className='h-full flex flex-col'>
-						<h2 className='text-xl font-semibold mb-3 text-center pb-2 border-b border-white/10 dark:border-black/30'>
-							Final Script & Audio
-						</h2>
+					<GlassCard hoverEffect={false} className='h-full flex flex-col'>
+						<ColumnHeader
+							n={4}
+							state={stepStates[3]}
+							title='Final Script & Audio'
+						/>
 
 						<div className='mb-3 space-y-3'>
 							<GlassSelect
@@ -788,12 +961,12 @@ export default function Home() {
 							{/* Audio Player */}
 							{audioUrl && (
 								<motion.div
-									className='audio-player-container my-3 p-2 border border-white/10 dark:border-black/20 rounded-md'
+									className='audio-player-container surface-sunken my-3 p-3 rounded-xl'
 									initial={{ opacity: 0, y: -10 }}
 									animate={{ opacity: 1, y: 0 }}
 									transition={{ duration: 0.3 }}>
 									<audio
-										className='w-full my-2'
+										className='w-full'
 										src={audioUrl}
 										controls
 										controlsList='nodownload'
@@ -826,27 +999,66 @@ export default function Home() {
 								</motion.div>
 							)}
 
-							<div className='status-box text-center min-h-[2em]'>
+							<div
+								className='status-box text-center min-h-[2em]'
+								aria-live='polite'>
 								{isLoading && loadingMessage.includes("audio") && (
-									<p className='text-sm opacity-75'>
-										<span className='inline-block animate-pulse'>⏳</span>{" "}
+									<p
+										className='flex items-center justify-center gap-2 text-sm'
+										style={{ color: "var(--text-muted)" }}>
+										<span
+											className='inline-block h-3.5 w-3.5 rounded-full border-2 animate-spin'
+											style={{
+												borderColor: "rgb(var(--accent))",
+												borderTopColor: "transparent",
+											}}
+										/>
 										{loadingMessage}
 									</p>
 								)}
 								{audioError && (
-									<p className='text-red-400 font-medium text-sm'>
+									<p className='flex items-center justify-center gap-1.5 text-sm font-medium text-red-500'>
+										<svg
+											xmlns='http://www.w3.org/2000/svg'
+											width='15'
+											height='15'
+											viewBox='0 0 24 24'
+											fill='none'
+											stroke='currentColor'
+											strokeWidth='2'
+											strokeLinecap='round'
+											strokeLinejoin='round'
+											aria-hidden='true'>
+											<circle cx='12' cy='12' r='10' />
+											<line x1='15' y1='9' x2='9' y2='15' />
+											<line x1='9' y1='9' x2='15' y2='15' />
+										</svg>
 										{audioError}
 									</p>
 								)}
 								{audioStatus && !audioError && (
-									<p className='text-green-400 font-medium text-sm'>
+									<p className='flex items-center justify-center gap-1.5 text-sm font-medium text-emerald-500'>
+										<svg
+											xmlns='http://www.w3.org/2000/svg'
+											width='15'
+											height='15'
+											viewBox='0 0 24 24'
+											fill='none'
+											stroke='currentColor'
+											strokeWidth='2'
+											strokeLinecap='round'
+											strokeLinejoin='round'
+											aria-hidden='true'>
+											<path d='M22 11.08V12a10 10 0 1 1-5.93-9.14' />
+											<polyline points='22 4 12 14.01 9 11.01' />
+										</svg>
 										{audioStatus}
 									</p>
 								)}
 							</div>
 						</div>
 
-						<div className='content-output flex-grow overflow-y-auto h-80'>
+						<div className='content-output flex-grow overflow-y-auto ts-scroll h-[56vh] min-h-[18rem]'>
 							{isLoading && loadingMessage.includes("Writing script") && (
 								<div className='h-full flex items-center justify-center'>
 									<GlassSpinner size='md' label='Writing script...' />
@@ -887,9 +1099,7 @@ export default function Home() {
 									initial={{ opacity: 0 }}
 									animate={{ opacity: 1 }}
 									transition={{ duration: 0.5 }}>
-									<pre className='whitespace-pre-wrap break-words font-sans text-sm p-2'>
-										{finalScript}
-									</pre>
+									<Markdown>{finalScript}</Markdown>
 								</motion.div>
 							)}
 						</div>

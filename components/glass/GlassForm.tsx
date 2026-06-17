@@ -58,6 +58,7 @@ export function GlassInput({
 	animation = true,
 	min,
 	max,
+	step,
 }: GlassInputProps) {
 	const { theme } = useGlassMorphism();
 
@@ -73,7 +74,7 @@ export function GlassInput({
 
 	// Determine the opacity value
 	const opacityValue =
-		customOpacity !== undefined ? customOpacity : theme.isDarkMode ? 0.1 : 0.1;
+		customOpacity !== undefined ? customOpacity : theme.isDarkMode ? 0.5 : 0.8;
 
 	// Determine border color
 	const borderColor = error
@@ -88,7 +89,7 @@ export function GlassInput({
 		backdropFilter: `blur(${blurMap[blurValue]})`,
 		WebkitBackdropFilter: `blur(${blurMap[blurValue]})`,
 		border: `1px solid ${borderColor}`,
-		color: theme.isDarkMode ? "#ffffff" : "#333333",
+		color: theme.colorPalette.text,
 	};
 
 	return (
@@ -115,7 +116,8 @@ export function GlassInput({
 				required={required}
 				min={min}
 				max={max}
-				className='w-full rounded-md py-2 px-3 outline-none focus:ring-2 transition-all'
+				step={step}
+				className='glass-focus-ring w-full rounded-md py-2 px-3 outline-none transition-all placeholder:opacity-60'
 				style={inputStyles}
 				initial={animation ? { opacity: 0, y: 10 } : undefined}
 				animate={animation ? { opacity: 1, y: 0 } : undefined}
@@ -159,7 +161,7 @@ export function GlassSelect({
 
 	// Determine the opacity value
 	const opacityValue =
-		customOpacity !== undefined ? customOpacity : theme.isDarkMode ? 0.1 : 0.1;
+		customOpacity !== undefined ? customOpacity : theme.isDarkMode ? 0.5 : 0.8;
 
 	// Determine border color
 	const borderColor = error
@@ -173,7 +175,7 @@ export function GlassSelect({
 		backdropFilter: `blur(${blurMap[blurValue]})`,
 		WebkitBackdropFilter: `blur(${blurMap[blurValue]})`,
 		border: `1px solid ${borderColor}`,
-		color: theme.isDarkMode ? "#ffffff" : "#333333",
+		color: theme.colorPalette.text,
 		backgroundImage: `url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='${
 			theme.isDarkMode ? "white" : "black"
 		}' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e")`,
@@ -204,7 +206,7 @@ export function GlassSelect({
 				onChange={onChange}
 				disabled={disabled}
 				required={required}
-				className='w-full rounded-md py-2 px-3 outline-none focus:ring-2 transition-all'
+				className='glass-focus-ring w-full rounded-md py-2 px-3 outline-none transition-all'
 				style={selectStyles} 
 				initial={animation ? { opacity: 0, y: 10 } : undefined}
 				animate={animation ? { opacity: 1, y: 0 } : undefined}
@@ -259,7 +261,7 @@ export function GlassTextArea({
 
 	// Determine the opacity value
 	const opacityValue =
-		customOpacity !== undefined ? customOpacity : theme.isDarkMode ? 0.1 : 0.1;
+		customOpacity !== undefined ? customOpacity : theme.isDarkMode ? 0.5 : 0.8;
 
 	// Determine border color
 	const borderColor = error
@@ -274,7 +276,7 @@ export function GlassTextArea({
 		backdropFilter: `blur(${blurMap[blurValue]})`,
 		WebkitBackdropFilter: `blur(${blurMap[blurValue]})`,
 		border: `1px solid ${borderColor}`,
-		color: theme.isDarkMode ? "#ffffff" : "#333333",
+		color: theme.colorPalette.text,
 	};
 
 	return (
@@ -299,7 +301,7 @@ export function GlassTextArea({
 				disabled={disabled}
 				required={required}
 				rows={rows}
-				className='w-full rounded-md py-2 px-3 outline-none focus:ring-2 transition-all'
+				className='glass-focus-ring w-full rounded-md py-2 px-3 outline-none transition-all'
 				style={textAreaStyles}
 				initial={animation ? { opacity: 0, y: 10 } : undefined}
 				animate={animation ? { opacity: 1, y: 0 } : undefined}
